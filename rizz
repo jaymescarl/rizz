@@ -1,0 +1,182 @@
+-- Create ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+screenGui.ResetOnSpawn = false
+
+-- Create Frame
+local frame = Instance.new("Frame")
+frame.Parent = screenGui
+frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+frame.Size = UDim2.new(0, 300, 0, 300) -- Adjusted size
+frame.Position = UDim2.new(0.5, -150, 0.5, -150) -- Adjusted position
+frame.Active = true
+frame.Draggable = true
+
+-- Status Label
+local statusLabel = Instance.new("TextLabel")
+statusLabel.Parent = frame
+statusLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+statusLabel.Size = UDim2.new(0, 300, 0, 30)
+statusLabel.Position = UDim2.new(0, 0, 0, -40)
+statusLabel.Text = "Status: Normal Speed (1)"
+statusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+statusLabel.TextScaled = true
+
+-- Create Normal Speed Button
+local normalButton = Instance.new("TextButton")
+normalButton.Parent = frame
+normalButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+normalButton.Size = UDim2.new(0, 120, 0, 30)
+normalButton.Position = UDim2.new(0, 20, 0, 20)
+normalButton.Text = "Normal Speed (1)"
+normalButton.TextScaled = true
+
+-- Create Faster Speed Button
+local fasterButton = Instance.new("TextButton")
+fasterButton.Parent = frame
+fasterButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+fasterButton.Size = UDim2.new(0, 120, 0, 30)
+fasterButton.Position = UDim2.new(0, 20, 0, 60)
+fasterButton.Text = "Faster Speed (2)"
+fasterButton.TextScaled = true
+
+-- Create Reverse Speed Button
+local reverseButton = Instance.new("TextButton")
+reverseButton.Parent = frame
+reverseButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+reverseButton.Size = UDim2.new(0, 120, 0, 30)
+reverseButton.Position = UDim2.new(0, 20, 0, 100)
+reverseButton.Text = "Reverse Speed (-0.5)"
+reverseButton.TextScaled = true
+
+-- Create Custom Speed Button
+local customButton = Instance.new("TextButton")
+customButton.Parent = frame
+customButton.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
+customButton.Size = UDim2.new(0, 120, 0, 30)
+customButton.Position = UDim2.new(0, 20, 0, 140)
+customButton.Text = "Custom Speed (0)"
+customButton.TextScaled = true
+
+-- Create Speed Input Boxes for Each Speed Button
+local speedInputNormal = Instance.new("TextBox")
+speedInputNormal.Parent = frame
+speedInputNormal.Size = UDim2.new(0, 120, 0, 30)
+speedInputNormal.Position = UDim2.new(0.5, 20, 0, 20)
+speedInputNormal.PlaceholderText = "Normal Speed"
+speedInputNormal.TextScaled = true
+speedInputNormal.Text = "1"
+
+local speedInputFaster = Instance.new("TextBox")
+speedInputFaster.Parent = frame
+speedInputFaster.Size = UDim2.new(0, 120, 0, 30)
+speedInputFaster.Position = UDim2.new(0.5, 20, 0, 60)
+speedInputFaster.PlaceholderText = "Faster Speed"
+speedInputFaster.TextScaled = true
+speedInputFaster.Text = "2"
+
+local speedInputReverse = Instance.new("TextBox")
+speedInputReverse.Parent = frame
+speedInputReverse.Size = UDim2.new(0, 120, 0, 30)
+speedInputReverse.Position = UDim2.new(0.5, 20, 0, 100)
+speedInputReverse.PlaceholderText = "Reverse Speed"
+speedInputReverse.TextScaled = true
+speedInputReverse.Text = "-0.5"
+
+local speedInputCustom = Instance.new("TextBox")
+speedInputCustom.Parent = frame
+speedInputCustom.Size = UDim2.new(0, 120, 0, 30)
+speedInputCustom.Position = UDim2.new(0.5, 20, 0, 140)
+speedInputCustom.PlaceholderText = "Custom Speed"
+speedInputCustom.TextScaled = true
+speedInputCustom.Text = "0"
+
+-- Create Destroy Button
+local destroyButton = Instance.new("TextButton")
+destroyButton.Parent = frame
+destroyButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+destroyButton.Size = UDim2.new(0, 260, 0, 30)
+destroyButton.Position = UDim2.new(0, 20, 0, 180)
+destroyButton.Text = "Destroy"
+destroyButton.TextScaled = true
+
+-- Label for "Script Made by Jay"
+local creditsLabel = Instance.new("TextLabel")
+creditsLabel.Parent = frame
+creditsLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+creditsLabel.Size = UDim2.new(0, 300, 0, 30)
+creditsLabel.Position = UDim2.new(0, 0, 0, 220)
+creditsLabel.Text = "Script made by Jay"
+creditsLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
+creditsLabel.TextScaled = true
+
+-- Animation Speed Variables
+local speedMultiplier = 1
+local isAnimating = false
+
+-- Function to modify animation speed
+local function modifyAnimationSpeed()
+    local character = game.Players.LocalPlayer.Character
+    if character then
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            for _, animTrack in pairs(humanoid:GetPlayingAnimationTracks()) do
+                animTrack:AdjustSpeed(speedMultiplier)
+            end
+        end
+    end
+end
+
+-- Function to update status
+local function updateStatus(text, color)
+    statusLabel.Text = text
+    statusLabel.TextColor3 = color
+    modifyAnimationSpeed()
+end
+
+-- Button Functions
+normalButton.MouseButton1Click:Connect(function()
+    local speed = tonumber(speedInputNormal.Text)
+    if speed then
+        speedMultiplier = speed
+        updateStatus("Status: Normal Speed (" .. tostring(speed) .. ")", Color3.fromRGB(0, 255, 0))
+    end
+end)
+
+fasterButton.MouseButton1Click:Connect(function()
+    local speed = tonumber(speedInputFaster.Text)
+    if speed and speed > 0 then -- Only allow positive numbers for faster speed
+        speedMultiplier = speed
+        updateStatus("Status: Faster Speed (" .. tostring(speed) .. ")", Color3.fromRGB(0, 0, 255))
+    end
+end)
+
+reverseButton.MouseButton1Click:Connect(function()
+    local speed = tonumber(speedInputReverse.Text)
+    if speed then
+        if speed > 0 then -- Automatically make it negative if needed
+            speed = -speed
+        end
+        speedMultiplier = speed
+        updateStatus("Status: Reverse Speed (" .. tostring(speed) .. ")", Color3.fromRGB(255, 0, 0))
+    end
+end)
+
+customButton.MouseButton1Click:Connect(function()
+    local speed = tonumber(speedInputCustom.Text) or 0 -- Use 0 as the default for custom
+    speedMultiplier = speed
+    updateStatus("Status: Custom Speed (" .. tostring(speed) .. ")", Color3.fromRGB(255, 255, 0))
+end)
+
+destroyButton.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+end)
+
+-- Constantly monitor animation and adjust speed to prevent reset
+game:GetService("RunService").RenderStepped:Connect(function()
+    modifyAnimationSpeed() -- Ensure speed is adjusted constantly
+end)
+
+-- Set Default Speeds
+speedMultiplier = tonumber(speedInputNormal.Text)
+modifyAnimationSpeed()
