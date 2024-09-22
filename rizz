@@ -7,8 +7,8 @@ screenGui.ResetOnSpawn = false
 local frame = Instance.new("Frame")
 frame.Parent = screenGui
 frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-frame.Size = UDim2.new(0, 300, 0, 420) -- Adjusted size to accommodate inputs
-frame.Position = UDim2.new(0.5, -150, 0.5, -210) -- Centered on screen
+frame.Size = UDim2.new(0, 300, 0, 420)
+frame.Position = UDim2.new(0.5, -150, 0.5, -210)
 frame.Active = true
 frame.Draggable = false
 
@@ -35,126 +35,67 @@ local function createInputField(parent, posX, posY, defaultText)
     return input
 end
 
--- Create Normal Speed Button
-local normalButton = Instance.new("TextButton")
-normalButton.Parent = frame
-normalButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-normalButton.Size = UDim2.new(0.4, 0, 0, 30) -- Relative size
-normalButton.Position = UDim2.new(0.1, 0, 0.1, 0) -- Relative position
-normalButton.Text = "Normal Speed (1)"
-normalButton.TextScaled = true
+-- Create Buttons and Input Fields
+local function createButton(parent, text, posX, posY, color)
+    local button = Instance.new("TextButton")
+    button.Parent = parent
+    button.BackgroundColor3 = color
+    button.Size = UDim2.new(0.4, 0, 0, 30)
+    button.Position = UDim2.new(0.1, posX, 0.1, posY)
+    button.Text = text
+    button.TextScaled = true
+    return button
+end
 
--- Create SlowMo Speed Button and Input
-local slowMoButton = Instance.new("TextButton")
-slowMoButton.Parent = frame
-slowMoButton.BackgroundColor3 = Color3.fromRGB(100, 149, 237) -- Cornflower blue
-slowMoButton.Size = UDim2.new(0.4, 0, 0, 30) -- Relative size
-slowMoButton.Position = UDim2.new(0.1, 0, 0.2, 0) -- Relative position
-slowMoButton.Text = "SlowMo Speed (0.2)"
-slowMoButton.TextScaled = true
+local normalButton = createButton(frame, "Normal Speed (1)", 0, 0, Color3.fromRGB(0, 255, 0))
+local slowMoButton = createButton(frame, "SlowMo Speed (0.2)", 0, 40, Color3.fromRGB(100, 149, 237))
+local fasterButton = createButton(frame, "Faster Speed (2)", 0, 80, Color3.fromRGB(0, 0, 255))
+local reverseButton = createButton(frame, "Reverse Speed (-0.8)", 0, 120, Color3.fromRGB(255, 0, 0))
+local customButton = createButton(frame, "Custom Speed (0)", 0, 160, Color3.fromRGB(255, 255, 0))
 
-local slowMoInput = createInputField(frame, 160, 60, "0.2")
-
--- Create Faster Speed Button and Input
-local fasterButton = Instance.new("TextButton")
-fasterButton.Parent = frame
-fasterButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
-fasterButton.Size = UDim2.new(0.4, 0, 0, 30) -- Relative size
-fasterButton.Position = UDim2.new(0.1, 0, 0.3, 0) -- Relative position
-fasterButton.Text = "Faster Speed (2)"
-fasterButton.TextScaled = true
-
-local fasterInput = createInputField(frame, 160, 100, "2")
-
--- Create Reverse Speed Button and Input
-local reverseButton = Instance.new("TextButton")
-reverseButton.Parent = frame
-reverseButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-reverseButton.Size = UDim2.new(0.4, 0, 0, 30) -- Relative size
-reverseButton.Position = UDim2.new(0.1, 0, 0.4, 0) -- Relative position
-reverseButton.Text = "Reverse Speed (-0.8)" -- Updated text
-
-local reverseInput = createInputField(frame, 160, 140, "-0.8") -- Default value changed
-
--- Create Custom Speed Button and Input
-local customButton = Instance.new("TextButton")
-customButton.Parent = frame
-customButton.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
-customButton.Size = UDim2.new(0.4, 0, 0, 30) -- Relative size
-customButton.Position = UDim2.new(0.1, 0, 0.5, 0) -- Relative position
-customButton.Text = "Custom Speed (0)"
-customButton.TextScaled = true
-
-local customInput = createInputField(frame, 160, 180, "0")
+local slowMoInput = createInputField(frame, 160, 40, "0.2")
+local fasterInput = createInputField(frame, 160, 80, "2")
+local reverseInput = createInputField(frame, 160, 120, "-0.8")
+local customInput = createInputField(frame, 160, 160, "0")
 
 -- Create Resize Handle
 local resizeHandle = Instance.new("Frame")
 resizeHandle.Parent = frame
 resizeHandle.Size = UDim2.new(0, 20, 0, 20)
-resizeHandle.Position = UDim2.new(1, -20, 1, -20) -- Bottom-right corner
+resizeHandle.Position = UDim2.new(1, -20, 1, -20)
 resizeHandle.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 resizeHandle.Active = true
+resizeHandle.Draggable = true
 
+-- Mobile Dragging Logic
 local dragging = false
 local dragInput, startPos, startSize
 
--- Mobile and PC Touch and Mouse Support
-local function beginDrag(input)
-    dragging = true
-    dragInput = input
-    startPos = input.Position
-    startSize = frame.Size
-end
-
-local function updateDrag(input)
-    if dragging then
-        local delta = input.Position - startPos
-        frame.Size = UDim2.new(startSize.X.Scale, startSize.X.Offset + delta.X, startSize.Y.Scale, startSize.Y.Offset + delta.Y)
-    end
-end
-
-local function endDrag()
-    dragging = false
-end
-
--- Touch support
-resizeHandle.InputBegan:Connect(function(input)
+frame.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.Touch then
-        beginDrag(input)
+        dragging = true
+        dragInput = input
+        startPos = input.Position
+        startSize = frame.Size
     end
-end)
-
-resizeHandle.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.Touch then
-        updateDrag(input)
-    end
-end)
-
-resizeHandle.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.Touch then
-        endDrag()
-    end
-end)
-
--- Mouse support for PC
-resizeHandle.MouseButton1Down:Connect(function(input)
-    beginDrag(input)
 end)
 
 game:GetService("UserInputService").InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement then
-        updateDrag(input)
+    if dragging and input.UserInputType == Enum.UserInputType.Touch then
+        local delta = input.Position - startPos
+        frame.Position = UDim2.new(frame.Position.X.Scale, frame.Position.X.Offset + delta.X, frame.Position.Y.Scale, frame.Position.Y.Offset + delta.Y)
     end
 end)
 
-resizeHandle.MouseButton1Up:Connect(function()
-    endDrag()
+frame.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch then
+        dragging = false
+    end
 end)
 
 -- Animation Speed Variables
 local speedMultiplier = 1
 
--- Function to modify animation speed
 local function modifyAnimationSpeed()
     local character = game.Players.LocalPlayer.Character
     if character then
@@ -188,16 +129,13 @@ end)
 
 fasterButton.MouseButton1Click:Connect(function()
     local enteredSpeed = tonumber(fasterInput.Text) or 2
-    if enteredSpeed > 0 then
-        speedMultiplier = enteredSpeed
-        updateStatus("Status: Faster Speed ("..enteredSpeed..")", Color3.fromRGB(0, 0, 255))
-    end
+    speedMultiplier = enteredSpeed
+    updateStatus("Status: Faster Speed ("..enteredSpeed..")", Color3.fromRGB(0, 0, 255))
 end)
 
 reverseButton.MouseButton1Click:Connect(function()
     local enteredSpeed = tonumber(reverseInput.Text) or -0.8
-    if enteredSpeed > 0 then enteredSpeed = -enteredSpeed end -- Ensure reverse is negative
-    speedMultiplier = enteredSpeed
+    speedMultiplier = enteredSpeed < 0 and enteredSpeed or -enteredSpeed -- Ensure reverse is negative
     updateStatus("Status: Reverse Speed ("..enteredSpeed..")", Color3.fromRGB(255, 0, 0))
 end)
 
